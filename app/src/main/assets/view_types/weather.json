@@ -1,0 +1,48 @@
+{
+  "type": "weather",
+  "name": "Weather",
+  "description": "Displays current weather conditions and forecast for a location",
+  "sample": {
+    "id": "weather-milano",
+    "metadata": {
+      "type": "weather",
+      "rotateAfter": 30000
+    },
+    "data": {
+      "location": {
+        "name": "Milano",
+        "subtext": "Lombardia, Italy",
+        "lat": 45.4642,
+        "lon": 9.1914
+      },
+      "hoursToShow": 6,
+      "background": {
+        "type": "gradient",
+        "from": "#90EE90",
+        "to": "#ff6600"
+      }
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'weather'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating"
+    },
+    "data": {
+      "location": {
+        "name": "string (required) - location name",
+        "subtext": "string (optional) - location subtitle",
+        "lat": "number (required) - latitude",
+        "lon": "number (required) - longitude"
+      },
+      "hoursToShow": "number (optional) - number of hourly forecast hours to show (default: 6)",
+      "background": {
+        "type": "string (optional) - 'gradient' or 'solid'",
+        "from": "string (optional) - gradient start color (hex)",
+        "to": "string (optional) - gradient end color (hex)",
+        "middle": "string (optional) - gradient middle color (hex)"
+      }
+    }
+  }
+}
+

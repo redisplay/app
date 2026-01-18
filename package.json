@@ -1,0 +1,6 @@
+{
+  "name": "rekiosk-client",
+  "dependencies": {
+    "morgan": "^1.10.1"
+  }
+}

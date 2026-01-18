@@ -1,0 +1,38 @@
+{
+  "type": "static_text",
+  "name": "Static Text",
+  "description": "Displays static text with optional title and background gradient",
+  "sample": {
+    "id": "welcome-message",
+    "metadata": {
+      "type": "static_text",
+      "rotateAfter": 5000
+    },
+    "data": {
+      "title": "Welcome",
+      "text": "This is a static text view",
+      "background": {
+        "type": "gradient",
+        "from": "#1e3c72",
+        "to": "#2a5298"
+      }
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'static_text'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating"
+    },
+    "data": {
+      "title": "string (optional) - title text to display",
+      "text": "string (optional) - main text content",
+      "background": {
+        "type": "string (optional) - 'gradient' or 'solid'",
+        "from": "string (optional) - gradient start color (hex)",
+        "to": "string (optional) - gradient end color (hex)",
+        "middle": "string (optional) - gradient middle color (hex)"
+      }
+    }
+  }
+}
+

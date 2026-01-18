@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#303030"
+    android:fillViewport="true">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kiosk Configuration"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Server URL Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Server Settings"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Server URL"
+            android:textColor="#AAAAAA"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Connection Type Selector -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connection Type"
+            android:textColor="#AAAAAA"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/configConnectionType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/configConnectionTypeRemote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Remote HTTP Server"
+                android:textColor="#FFFFFF"
+                android:checked="true"
+                android:padding="12dp"
+                android:background="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <RadioButton
+                android:id="@+id/configConnectionTypeInternal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Internal Server (Built-in)"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:background="#333333" />
+        </RadioGroup>
+
+        <!-- Remote Server URL Input (shown when Remote is selected) -->
+        <EditText
+            android:id="@+id/configServerUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="http://192.168.1.100:3000"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#999999"
+            android:inputType="textUri"
+            android:background="#333333"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+        
+        <!-- Internal Server Address Display (shown when Internal is selected) -->
+        <LinearLayout
+            android:id="@+id/configInternalServerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#2a2a2a"
+            android:padding="16dp"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp"
+            android:gravity="center">
+            
+            <TextView
+                android:id="@+id/configInternalServerAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#4CAF50"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+            
+            <ImageView
+                android:id="@+id/configInternalServerQRCode"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:background="#FFFFFF"
+                android:padding="10dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Use Bluetooth Toggle - COMMENTED OUT FOR NOW -->
+        <!--
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="#333333"
+            android:layout_marginBottom="32dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Use Bluetooth"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Connect via Bluetooth instead of WiFi"
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <android.widget.CheckBox
+                android:id="@+id/configUseBluetooth"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleX="1.5"
+                android:scaleY="1.5" />
+        </LinearLayout>
+        -->
+
+        <!-- Display Options Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Display Options"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Debug Mode Toggle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="#333333"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Debug Mode"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Show debug information bar"
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <android.widget.CheckBox
+                android:id="@+id/configDebugMode"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleX="1.5"
+                android:scaleY="1.5" />
+        </LinearLayout>
+
+        <!-- App Behavior Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="App Behavior"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Home Screen Mode Toggle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="#333333"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Home Screen Mode"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Register app as home screen launcher"
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <android.widget.CheckBox
+                android:id="@+id/configHomeScreenMode"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleX="1.5"
+                android:scaleY="1.5" />
+        </LinearLayout>
+
+        <!-- Auto Update Toggle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="#333333"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Auto Update"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Automatically check for and install updates"
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <android.widget.CheckBox
+                android:id="@+id/configAutoUpdate"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleX="1.5"
+                android:scaleY="1.5" />
+        </LinearLayout>
+
+        <!-- Server Configuration Info Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Server Configuration (Read-Only)"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp" />
+
+        <ScrollView
+            android:id="@+id/configInfoScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="400dp"
+            android:background="#333333"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/configInfoMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Loading server configuration..."
+                    android:textColor="#CCCCCC"
+                    android:textSize="14sp"
+                    android:padding="8dp"
+                    android:gravity="center" />
+
+                <!-- Channel Header -->
+                <TextView
+                    android:id="@+id/configChannelHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone" />
+
+                <!-- Views List -->
+                <TextView
+                    android:id="@+id/configViewsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Views"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="4dp"
+                    android:visibility="gone" />
+
+                <TableLayout
+                    android:id="@+id/configViewsTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="1"
+                    android:visibility="gone" />
+
+                <!-- Tap Mappings Table -->
+                <TextView
+                    android:id="@+id/configTapMappingsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tap Mappings"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:visibility="gone" />
+
+                <TableLayout
+                    android:id="@+id/configTapMappingsTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="1"
+                    android:visibility="gone" />
+
+                <!-- View Schedules Table -->
+                <TextView
+                    android:id="@+id/configSchedulesHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="View Schedules"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:visibility="gone" />
+
+                <TableLayout
+                    android:id="@+id/configSchedulesTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="1"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/configCancelButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:background="#666666"
+                android:textColor="#FFFFFF"
+                android:padding="16dp"
+                android:layout_margin="4dp" />
+
+            <Button
+                android:id="@+id/configSaveButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Save Changes"
+                android:background="#2196F3"
+                android:textColor="#FFFFFF"
+                android:padding="16dp"
+                android:layout_margin="4dp" />
+        </LinearLayout>
+
+        <!-- View Types Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Available View Types"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/configViewTypesButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📚 View Available View Types"
+            android:background="#2196F3"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp"
+            android:padding="16dp" />
+
+        <!-- Clear Config Button -->
+        <Button
+            android:id="@+id/configClearButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Clear All Settings"
+            android:background="#F44336"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="24dp"
+            android:padding="16dp" />
+
+</LinearLayout>
+
+</ScrollView>
+

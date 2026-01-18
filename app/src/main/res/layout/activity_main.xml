@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Main content display -->
+    <FrameLayout
+        android:id="@+id/contentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/contentImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/contentText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="48sp"
+            android:textColor="#FFFFFF"
+            android:padding="32dp"
+            android:visibility="gone" />
+        
+        <!-- Combined view for server config (text + QR code) -->
+        <LinearLayout
+            android:id="@+id/configScreenLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp"
+            android:visibility="gone">
+            
+            <TextView
+                android:id="@+id/configServerAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="36sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="40dp"
+                android:textStyle="bold" />
+            
+            <ImageView
+                android:id="@+id/qrCodeImage"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:scaleType="fitCenter"
+                android:background="#FFFFFF"
+                android:padding="10dp" />
+        </LinearLayout>
+
+        <WebView
+            android:id="@+id/contentWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <!-- Ripple Overlay -->
+    <com.redisplay.app.utils.RippleView
+        android:id="@+id/rippleView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- User-friendly Error View -->
+    <LinearLayout
+        android:id="@+id/errorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:background="#000000">
+
+        <TextView
+            android:id="@+id/errorFriendlyText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connection Issue"
+            android:textSize="48sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="32dp" />
+
+        <Button
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Retry Connection"
+            android:textSize="32sp"
+            android:padding="16dp" />
+    </LinearLayout>
+
+    <!-- Screen off button overlay (shown when screen can't be turned off automatically) -->
+    <android.widget.Button
+        android:id="@+id/screenOffButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Turn Screen Off"
+        android:textSize="24sp"
+        android:padding="32dp"
+        android:visibility="gone" />
+
+    <!-- Debug bar (optional, shows current view info) - placed last so it's on top -->
+    <TextView
+        android:id="@+id/debugBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="#E6000000"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:padding="8dp"
+        android:gravity="center"
+        android:elevation="100dp"
+        android:translationZ="100dp"
+        android:visibility="gone" />
+
+    <!-- Brightness Feedback Overlay -->
+    <LinearLayout
+        android:id="@+id/brightnessOverlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="#80000000"
+        android:padding="24dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:elevation="200dp"
+        android:translationZ="200dp">
+
+        <TextView
+            android:id="@+id/brightnessIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="☀"
+            android:textSize="48sp"
+            android:textColor="#FFFFFF" />
+
+        <!-- Vertical Brightness Bar -->
+        <LinearLayout
+            android:layout_width="40dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="#40FFFFFF"
+            android:orientation="vertical"
+            android:weightSum="1.0">
+            
+            <View
+                android:id="@+id/brightnessBarEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
+                
+            <View
+                android:id="@+id/brightnessBarFill"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="#FFFFFF"
+                android:layout_weight="0.5" />
+        </LinearLayout>
+            
+        <TextView
+            android:id="@+id/brightnessText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50%"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+</FrameLayout>
+

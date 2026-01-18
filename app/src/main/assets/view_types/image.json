@@ -1,0 +1,27 @@
+{
+  "type": "image",
+  "name": "Image",
+  "description": "Displays an image from a URL (supports JPG, PNG, WebP, SVG)",
+  "sample": {
+    "id": "example-image",
+    "metadata": {
+      "type": "image",
+      "rotateAfter": 10000
+    },
+    "data": {
+      "url": "https://example.com/image.jpg",
+      "scaleType": "centerCrop"
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'image'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating"
+    },
+    "data": {
+      "url": "string (required) - URL of the image to display",
+      "scaleType": "string (optional) - 'centerCrop', 'fitCenter', or 'center' (default: 'fitCenter')"
+    }
+  }
+}
+

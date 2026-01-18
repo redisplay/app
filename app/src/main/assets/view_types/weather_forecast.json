@@ -1,0 +1,47 @@
+{
+  "type": "weather_forecast",
+  "name": "Weather Forecast",
+  "description": "Displays extended weather forecast for a location",
+  "sample": {
+    "id": "weather-forecast-milano",
+    "metadata": {
+      "type": "weather_forecast",
+      "rotateAfter": 30000
+    },
+    "data": {
+      "location": {
+        "name": "Milano",
+        "subtext": "Lombardia, Italy",
+        "lat": 45.4642,
+        "lon": 9.1914
+      },
+      "daysToShow": 5,
+      "background": {
+        "type": "gradient",
+        "from": "#4facfe",
+        "to": "#00f2fe"
+      }
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'weather_forecast'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating"
+    },
+    "data": {
+      "location": {
+        "name": "string (required) - location name",
+        "subtext": "string (optional) - location subtitle",
+        "lat": "number (required) - latitude",
+        "lon": "number (required) - longitude"
+      },
+      "daysToShow": "number (optional) - number of forecast days to show (default: 5)",
+      "background": {
+        "type": "string (optional) - 'gradient' or 'solid'",
+        "from": "string (optional) - gradient start color (hex)",
+        "to": "string (optional) - gradient end color (hex)"
+      }
+    }
+  }
+}
+

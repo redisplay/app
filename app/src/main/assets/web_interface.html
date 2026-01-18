@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosk View Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        .section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #3a3a3a;
+        }
+        
+        .section h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button.danger {
+            background: #f44336;
+        }
+        
+        button.danger:hover {
+            background: #da190b;
+        }
+        
+        button.secondary {
+            background: #666;
+        }
+        
+        button.secondary:hover {
+            background: #555;
+        }
+        
+        .view-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .view-card {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        
+        .view-card h3 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+        
+        .view-card .view-type {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .view-card .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .view-card .actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+            margin: 0;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            min-width: 300px;
+            max-width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .message.success {
+            background: #4CAF50;
+            color: white;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f44336;
+            color: white;
+            display: block;
+        }
+        
+        .json-editor {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📺 Kiosk View Manager <a href="/view-types" style="font-size: 0.6em; color: #888; text-decoration: none; margin-left: 20px;">📚 View Types</a></h1>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="section">
+            <h2>Add New View</h2>
+            <form id="addViewForm">
+                <div class="form-group">
+                    <label for="viewId">View ID:</label>
+                    <input type="text" id="viewId" required placeholder="e.g., weather-milano">
+                </div>
+                
+                <div class="form-group">
+                    <label for="viewJson">View JSON (must include metadata and data):</label>
+                    <textarea id="viewJson" class="json-editor" rows="20" required placeholder='{
+  "metadata": {
+    "type": "weather",
+    "rotateAfter": 30000
+  },
+  "data": {
+    "location": {
+      "name": "Milano",
+      "subtext": "Lombardia, Italy",
+      "lat": 45.4642,
+      "lon": 9.1914
+    },
+    "hoursToShow": 6,
+    "background": {
+      "type": "gradient",
+      "from": "#90EE90",
+      "to": "#ff6600"
+    }
+  }
+}'></textarea>
+                </div>
+                
+                <button type="submit">Add View</button>
+            </form>
+        </div>
+        
+        <div class="section">
+            <h2>Existing Views</h2>
+            <button onclick="loadViews()" class="secondary">Refresh List</button>
+            <div id="viewList" class="view-list"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Channel Configuration</h2>
+            <div class="form-group">
+                <label for="channelSelect">Channel:</label>
+                <select id="channelSelect">
+                    <option value="test">test</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Quadrant Mappings:</label>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                    <div>
+                        <label style="font-size: 0.9em;">TOP_LEFT:</label>
+                        <select id="quadrant_TOP_LEFT" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">TOP_CENTER:</label>
+                        <select id="quadrant_TOP_CENTER" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">TOP_RIGHT:</label>
+                        <select id="quadrant_TOP_RIGHT" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">MIDDLE_LEFT:</label>
+                        <select id="quadrant_MIDDLE_LEFT" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">MIDDLE_CENTER:</label>
+                        <select id="quadrant_MIDDLE_CENTER" class="quadrant-select" disabled style="background: #333; color: #888;">
+                            <option value="">Pause/Resume (Always)</option>
+                        </select>
+                        <div style="font-size: 0.8em; color: #888; margin-top: 5px;">Always mapped to pause/resume</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">MIDDLE_RIGHT:</label>
+                        <select id="quadrant_MIDDLE_RIGHT" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">BOTTOM_LEFT:</label>
+                        <select id="quadrant_BOTTOM_LEFT" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">BOTTOM_CENTER:</label>
+                        <select id="quadrant_BOTTOM_CENTER" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9em;">BOTTOM_RIGHT:</label>
+                        <select id="quadrant_BOTTOM_RIGHT" class="quadrant-select">
+                            <option value="">None</option>
+                            <option value="NEXT">NEXT</option>
+                            <option value="PREVIOUS">PREVIOUS</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="saveChannelConfig()">Save Channel Config</button>
+            <button onclick="loadChannelConfig()" class="secondary">Load Channel Config</button>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '';
+        
+        // Show message
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            setTimeout(() => {
+                msg.className = 'message';
+            }, 5000);
+        }
+        
+        let editingViewId = null;
+        
+        // Handle form submission
+        document.getElementById('addViewForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const viewId = document.getElementById('viewId').value;
+            
+            let viewData;
+            try {
+                viewData = JSON.parse(document.getElementById('viewJson').value);
+                // Validate that it has metadata and data
+                if (!viewData.metadata || !viewData.data) {
+                    showMessage('View JSON must include both "metadata" and "data" fields', 'error');
+                    return;
+                }
+                // If JSON includes an id, use it (but allow override from input field)
+                if (viewData.id && !document.getElementById('viewId').value) {
+                    document.getElementById('viewId').value = viewData.id;
+                }
+            } catch (err) {
+                showMessage('Invalid JSON: ' + err.message, 'error');
+                return;
+            }
+            
+            try {
+                const isEdit = editingViewId !== null;
+                const url = isEdit ? API_BASE + '/api/views/' + editingViewId : API_BASE + '/api/views';
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                // If viewData already has id, use it; otherwise wrap it
+                let requestBody;
+                if (viewData.id && viewData.id === viewId) {
+                    // viewData already has the id, send it as-is
+                    requestBody = JSON.stringify({ id: viewId, view: viewData });
+                } else {
+                    // Wrap viewData in view field
+                    requestBody = JSON.stringify({ id: viewId, view: viewData });
+                }
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: requestBody
+                });
+                
+                if (response.ok) {
+                    showMessage(isEdit ? 'View updated successfully!' : 'View added successfully!', 'success');
+                    document.getElementById('addViewForm').reset();
+                    editingViewId = null;
+                    const submitButton = document.querySelector('#addViewForm button[type="submit"]');
+                    submitButton.textContent = 'Add View';
+                    loadViews();
+                } else {
+                    const error = await response.json();
+                    showMessage('Error: ' + (error.error || 'Failed to ' + (isEdit ? 'update' : 'add') + ' view'), 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        });
+        
+        // Load views
+        async function loadViews() {
+            try {
+                const response = await fetch(API_BASE + '/api/views');
+                const views = await response.json();
+                
+                const viewList = document.getElementById('viewList');
+                viewList.innerHTML = '';
+                
+                if (views.length === 0) {
+                    viewList.innerHTML = '<p style="color: #888;">No views configured</p>';
+                    return;
+                }
+                
+                views.forEach(view => {
+                    const card = document.createElement('div');
+                    card.className = 'view-card';
+                    
+                    const viewObj = view.view || {};
+                    const metadata = viewObj.metadata || {};
+                    const data = viewObj.data || {};
+                    const type = metadata.type || 'custom';
+                    
+                    const enabled = view.enabled !== false;
+                    card.innerHTML = `
+                        <h3>${view.id}</h3>
+                        <div class="view-type">Type: ${type || 'custom'}</div>
+                        <div style="margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" ${enabled ? 'checked' : ''} 
+                                       onchange="toggleViewEnabled('${view.id}', this.checked)"
+                                       style="width: 20px; height: 20px; cursor: pointer;">
+                                <span style="color: ${enabled ? '#4CAF50' : '#888'}">
+                                    ${enabled ? '✓ Enabled' : '✗ Disabled'}
+                                </span>
+                            </label>
+                        </div>
+                        <div class="actions">
+                            <button onclick="editView('${view.id}')" class="secondary">Edit</button>
+                            <button onclick="deleteView('${view.id}')" class="danger">Delete</button>
+                        </div>
+                    `;
+                    
+                    viewList.appendChild(card);
+                });
+            } catch (err) {
+                showMessage('Error loading views: ' + err.message, 'error');
+            }
+        }
+        
+        // Delete view
+        async function deleteView(id) {
+            if (!confirm('Are you sure you want to delete view "' + id + '"?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE + '/api/views/' + id, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage('View deleted successfully!', 'success');
+                    loadViews();
+                } else {
+                    showMessage('Error deleting view', 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+        
+        // Edit view (loads into form)
+        async function editView(id) {
+            try {
+                const response = await fetch(API_BASE + '/api/views');
+                const views = await response.json();
+                const view = views.find(v => v.id === id);
+                
+                if (!view) {
+                    showMessage('View not found', 'error');
+                    return;
+                }
+                
+                const viewObj = view.view || {};
+                
+                editingViewId = id;
+                document.getElementById('viewId').value = id;
+                document.getElementById('viewJson').value = JSON.stringify(viewObj, null, 2);
+                
+                // Update form button text
+                const submitButton = document.querySelector('#addViewForm button[type="submit"]');
+                submitButton.textContent = 'Update View';
+                
+                // Scroll to form
+                document.getElementById('addViewForm').scrollIntoView({ behavior: 'smooth' });
+                showMessage('View loaded into form. Modify and submit to update.', 'success');
+            } catch (err) {
+                showMessage('Error loading view: ' + err.message, 'error');
+            }
+        }
+        
+        // Toggle view enabled/disabled
+        async function toggleViewEnabled(id, enabled) {
+            try {
+                const response = await fetch(API_BASE + '/api/views/' + id + '/enable', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: enabled })
+                });
+                
+                if (response.ok) {
+                    showMessage(`View ${enabled ? 'enabled' : 'disabled'} successfully!`, 'success');
+                    loadViews();
+                } else {
+                    showMessage('Error toggling view', 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+        
+        // Load channel config
+        async function loadChannelConfig() {
+            try {
+                const channel = document.getElementById('channelSelect').value;
+                const response = await fetch(API_BASE + '/api/channel-config/' + channel);
+                const config = await response.json();
+                
+                // Load views for dropdown
+                const viewsResponse = await fetch(API_BASE + '/api/views');
+                const views = await viewsResponse.json();
+                
+                // Populate quadrant selects
+                const quadrants = config.quadrants || {};
+                const quadrantNames = ['TOP_LEFT', 'TOP_CENTER', 'TOP_RIGHT', 
+                                      'MIDDLE_LEFT', 'MIDDLE_CENTER', 'MIDDLE_RIGHT',
+                                      'BOTTOM_LEFT', 'BOTTOM_CENTER', 'BOTTOM_RIGHT'];
+                
+                quadrantNames.forEach(quadrant => {
+                    const select = document.getElementById('quadrant_' + quadrant);
+                    if (select) {
+                        // Clear and rebuild options
+                        select.innerHTML = '<option value="">None</option><option value="NEXT">NEXT</option><option value="PREVIOUS">PREVIOUS</option>';
+                        
+                        // Add view options
+                        views.forEach(view => {
+                            if (view.enabled !== false) {
+                                const option = document.createElement('option');
+                                option.value = view.id;
+                                option.textContent = view.id;
+                                select.appendChild(option);
+                            }
+                        });
+                        
+                        // Set current value
+                        if (quadrants[quadrant]) {
+                            select.value = quadrants[quadrant];
+                        }
+                    }
+                });
+                
+                showMessage('Channel config loaded', 'success');
+            } catch (err) {
+                showMessage('Error loading channel config: ' + err.message, 'error');
+            }
+        }
+        
+        // Save channel config
+        async function saveChannelConfig() {
+            try {
+                const channel = document.getElementById('channelSelect').value;
+                const quadrants = {};
+                
+                const quadrantNames = ['TOP_LEFT', 'TOP_CENTER', 'TOP_RIGHT', 
+                                      'MIDDLE_LEFT', 'MIDDLE_CENTER', 'MIDDLE_RIGHT',
+                                      'BOTTOM_LEFT', 'BOTTOM_CENTER', 'BOTTOM_RIGHT'];
+                
+                quadrantNames.forEach(quadrant => {
+                    // Skip MIDDLE_CENTER - it's always pause/resume
+                    if (quadrant === 'MIDDLE_CENTER') {
+                        return;
+                    }
+                    
+                    const select = document.getElementById('quadrant_' + quadrant);
+                    if (select && select.value) {
+                        quadrants[quadrant] = select.value;
+                    }
+                });
+                
+                const response = await fetch(API_BASE + '/api/channel-config/' + channel, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quadrants: quadrants })
+                });
+                
+                if (response.ok) {
+                    showMessage('Channel config saved successfully!', 'success');
+                } else {
+                    showMessage('Error saving channel config', 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+        
+        // Load views on page load
+        loadViews();
+        loadChannelConfig();
+    </script>
+</body>
+</html>
+

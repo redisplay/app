@@ -1,0 +1,37 @@
+{
+  "type": "webcam",
+  "name": "Webcam",
+  "description": "Displays a webcam feed (requires webcam server integration)",
+  "sample": {
+    "id": "webcam-lorica-0",
+    "metadata": {
+      "type": "webcam",
+      "rotateAfter": 125000,
+      "schedule": {
+        "hours": [
+          { "from": "08:00", "to": "09:00" },
+          { "from": "16:00", "to": "18:00" }
+        ]
+      }
+    },
+    "data": {
+      "webcamId": "lorica-0",
+      "scaleType": "centerCrop"
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'webcam'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating",
+      "schedule": {
+        "hours": "array (optional) - array of time ranges when view should be active",
+        "days": "array (optional) - days of week ['mon','tue','wed','thu','fri','sat','sun']"
+      }
+    },
+    "data": {
+      "webcamId": "string (required) - identifier for the webcam",
+      "scaleType": "string (optional) - 'centerCrop', 'fitCenter', or 'center' (default: 'fitCenter')"
+    }
+  }
+}
+

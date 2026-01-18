@@ -1,0 +1,57 @@
+{
+  "type": "world_clock",
+  "name": "World Clock",
+  "description": "Displays multiple clocks for different timezones",
+  "sample": {
+    "id": "world-clock",
+    "metadata": {
+      "type": "world_clock",
+      "rotateAfter": 20000,
+      "schedule": {
+        "days": ["mon", "tue", "wed", "thu", "fri"],
+        "hours": {
+          "from": "09:00",
+          "to": "18:00"
+        }
+      }
+    },
+    "data": {
+      "format": "12h",
+      "baseTimezone": "Europe/Rome",
+      "clocks": [
+        { "timezone": "America/Chicago", "label": "Chicago" },
+        { "timezone": "Asia/Kolkata", "label": "Mumbai" },
+        { "timezone": "America/Sao_Paulo", "label": "São Paulo" }
+      ],
+      "background": {
+        "type": "gradient",
+        "from": "#330867",
+        "to": "#30cfd0"
+      }
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'world_clock'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating",
+      "schedule": {
+        "days": "array (optional) - days of week ['mon','tue','wed','thu','fri','sat','sun']",
+        "hours": {
+          "from": "string (optional) - start time (HH:mm)",
+          "to": "string (optional) - end time (HH:mm)"
+        }
+      }
+    },
+    "data": {
+      "format": "string (optional) - '12h' or '24h' (default: '24h')",
+      "baseTimezone": "string (optional) - base timezone for date display",
+      "clocks": "array (required) - array of clock objects with timezone and label",
+      "background": {
+        "type": "string (optional) - 'gradient' or 'solid'",
+        "from": "string (optional) - gradient start color (hex)",
+        "to": "string (optional) - gradient end color (hex)"
+      }
+    }
+  }
+}
+

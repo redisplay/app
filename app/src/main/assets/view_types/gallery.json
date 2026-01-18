@@ -1,0 +1,31 @@
+{
+  "type": "gallery",
+  "name": "Gallery",
+  "description": "Displays a rotating gallery of images",
+  "sample": {
+    "id": "photo-gallery",
+    "metadata": {
+      "type": "gallery",
+      "rotateAfter": 5000
+    },
+    "data": {
+      "images": [
+        { "url": "https://example.com/image1.jpg" },
+        { "url": "https://example.com/image2.jpg" },
+        { "url": "https://example.com/image3.jpg" }
+      ],
+      "transitionDuration": 1000
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'gallery'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating to next view"
+    },
+    "data": {
+      "images": "array (required) - array of image objects with 'url' property",
+      "transitionDuration": "number (optional) - milliseconds for image transitions (default: 1000)"
+    }
+  }
+}
+

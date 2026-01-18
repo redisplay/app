@@ -1,0 +1,37 @@
+{
+  "type": "calendar",
+  "name": "Calendar",
+  "description": "Displays calendar events (requires calendar server integration)",
+  "sample": {
+    "id": "main-calendar",
+    "metadata": {
+      "type": "calendar",
+      "rotateAfter": 30000
+    },
+    "data": {
+      "calendarUrl": "https://example.com/calendar.ics",
+      "timezone": "Europe/Rome",
+      "background": {
+        "type": "gradient",
+        "from": "#667eea",
+        "to": "#764ba2"
+      }
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'calendar'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating"
+    },
+    "data": {
+      "calendarUrl": "string (required) - URL to iCal/ICS calendar file",
+      "timezone": "string (optional) - timezone for event display",
+      "background": {
+        "type": "string (optional) - 'gradient' or 'solid'",
+        "from": "string (optional) - gradient start color (hex)",
+        "to": "string (optional) - gradient end color (hex)"
+      }
+    }
+  }
+}
+

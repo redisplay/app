@@ -1,0 +1,35 @@
+{
+  "type": "clock",
+  "name": "Clock",
+  "description": "Displays a digital clock with date and year progress",
+  "sample": {
+    "id": "main-clock",
+    "metadata": {
+      "type": "clock",
+      "rotateAfter": 20000
+    },
+    "data": {
+      "timezone": "Europe/Rome",
+      "background": {
+        "type": "gradient",
+        "from": "#000000",
+        "to": "#0f9b0f"
+      }
+    }
+  },
+  "fields": {
+    "metadata": {
+      "type": "string (required) - must be 'clock'",
+      "rotateAfter": "number (optional) - milliseconds to display before rotating"
+    },
+    "data": {
+      "timezone": "string (optional) - timezone ID (e.g., 'Europe/Rome', 'America/New_York')",
+      "background": {
+        "type": "string (optional) - 'gradient' or 'solid'",
+        "from": "string (optional) - gradient start color (hex)",
+        "to": "string (optional) - gradient end color (hex)"
+      }
+    }
+  }
+}
+
