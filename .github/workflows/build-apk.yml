@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'app/**'
   workflow_dispatch:
@@ -23,18 +23,16 @@ jobs:
           distribution: 'temurin'
       
       - name: Grant execute permission for gradlew
-        run: chmod +x app/gradlew
-        working-directory: app
+        run: chmod +x gradlew
       
       - name: Build APK
         run: ./gradlew assembleRelease
-        working-directory: app
       
       - name: Get version info
         id: version
         run: |
-          VERSION_CODE=$(grep -oP 'versionCode \K\d+' app/app/build.gradle | head -1)
-          VERSION_NAME=$(grep -oP 'versionName "\K[^"]+' app/app/build.gradle | head -1)
+          VERSION_CODE=$(grep -oP 'versionCode \K\d+' app/build.gradle | head -1)
+          VERSION_NAME=$(grep -oP 'versionName "\K[^"]+' app/build.gradle | head -1)
           echo "versionCode=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "versionName=$VERSION_NAME" >> $GITHUB_OUTPUT
       
@@ -42,13 +40,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release-${{ steps.version.outputs.versionCode }}
-          path: app/app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/release/*.apk
           retention-days: 90
       
       - name: Upload APK to website public folder
         run: |
           mkdir -p redisplay.dev/public/apk
-          cp app/app/build/outputs/apk/release/*.apk redisplay.dev/public/apk/app-release.apk
+          cp app/build/outputs/apk/release/*.apk redisplay.dev/public/apk/app-release.apk
           echo "APK copied to public folder"
       
       - name: Update version JSON
@@ -74,7 +72,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: app/app/build/outputs/apk/release/*.apk
+          files: app/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
         env:
