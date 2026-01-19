@@ -525,9 +525,14 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                                 }
                                 
                                 // Vibrate feedback if available
-                                android.os.Vibrator vibrator = (android.os.Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                                if (vibrator != null && vibrator.hasVibrator()) {
-                                    vibrator.vibrate(50); // 50ms vibration
+                                try {
+                                    android.os.Vibrator vibrator = (android.os.Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                                    if (vibrator != null && vibrator.hasVibrator()) {
+                                        vibrator.vibrate(50); // 50ms vibration
+                                    }
+                                } catch (SecurityException e) {
+                                    // Vibration permission not granted - ignore silently
+                                    Log.d(TAG, "Vibration not available: " + e.getMessage());
                                 }
                                 
                                 // Small delay to show ripple
