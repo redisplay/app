@@ -113,7 +113,7 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
     private boolean isClockMode = false; // Track if we are in forced clock mode
     private java.util.Map<String, String> quadrantMap = new java.util.HashMap<String, String>();
     private java.util.Map<String, String> viewNamesMap = new java.util.HashMap<String, String>();
-    private String currentChannel = "test";
+    private String currentChannel;
     private ContentManager contentManager;
     private NetworkChangeReceiver networkChangeReceiver;
     private android.content.IntentFilter networkFilter;
@@ -150,10 +150,10 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
         // Initialize config manager
         configManager = new ConfigManager(this);
         
-        // Get configured URL (or empty if not set)
+        // Get configured URL (or default)
         serverUrl = configManager.getServerUrl();
         
-        // Get configured channel name (or default "test")
+        // Get configured channel name (or default)
         currentChannel = configManager.getChannelName();
         
         // Check connection type
@@ -461,7 +461,7 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                 return;
             }
             
-            String channel = currentChannel != null ? currentChannel : "test";
+            String channel = currentChannel != null ? currentChannel : configManager.getChannelName();
             connectionProvider = new InternalServerConnectionProvider(
                 this,
                 internalViewManager, 
@@ -1455,8 +1455,13 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                         JSONObject channelsConfig = new JSONObject(sb.toString());
                         if (channelsConfig.has("channels")) {
                              JSONObject channels = channelsConfig.getJSONObject("channels");
-                             // For now just use "test" channel or first available
-                             if (channels.has("test")) {
+                             // Use configured channel name, or fallback to "public", "test", or first available
+                             String configuredChannel = configManager.getChannelName();
+                             if (channels.has(configuredChannel)) {
+                                 currentChannel = configuredChannel;
+                             } else if (channels.has("public")) {
+                                 currentChannel = "public";
+                             } else if (channels.has("test")) {
                                  currentChannel = "test";
                              } else if (channels.keys().hasNext()) {
                                  currentChannel = channels.keys().next();

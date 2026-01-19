@@ -11,9 +11,9 @@ public class ConfigManager {
     private static final String KEY_DEBUG_MODE = "debug_mode";
     private static final String KEY_CONNECTION_TYPE = "connection_type"; // "remote", "internal"
     private static final String KEY_CHANNEL_NAME = "channel_name";
-    private static final String DEFAULT_URL = "";
+    private static final String DEFAULT_URL = "https://public.redisplay.dev";
     private static final String DEFAULT_CONNECTION_TYPE = "remote";
-    private static final String DEFAULT_CHANNEL_NAME = "test";
+    private static final String DEFAULT_CHANNEL_NAME = "public";
 
     private SharedPreferences prefs;
 

@@ -320,7 +320,7 @@ public class ConfigActivity extends Activity {
         // Get values from UI
         String connectionType = connectionTypeInternal.isChecked() ? "internal" : "remote";
         String serverUrl = serverUrlInput.getText().toString().trim();
-        String channelName = channelNameInput != null ? channelNameInput.getText().toString().trim() : "test";
+        String channelName = channelNameInput != null ? channelNameInput.getText().toString().trim() : configManager.getChannelName();
         boolean homeScreenMode = homeScreenModeCheckbox.isChecked();
         boolean autoUpdate = autoUpdateCheckbox.isChecked();
         boolean debugMode = debugModeCheckbox.isChecked();
@@ -532,7 +532,8 @@ public class ConfigActivity extends Activity {
             public void run() {
                 try {
                     // Fetch channel config
-                    String channelConfigUrl = serverUrl + "/api/channel-config/test";
+                    String channelName = configManager.getChannelName();
+                    String channelConfigUrl = serverUrl + "/api/channel-config/" + channelName;
                     java.net.URL url = new java.net.URL(channelConfigUrl);
                     java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
                     conn.setConnectTimeout(5000);
@@ -647,7 +648,7 @@ public class ConfigActivity extends Activity {
                             
                             // Show channel header
                             if (configChannelHeader != null) {
-                                configChannelHeader.setText("Channel: test");
+                                configChannelHeader.setText("Channel: " + configManager.getChannelName());
                                 configChannelHeader.setVisibility(android.view.View.VISIBLE);
                             }
                             
