@@ -79,6 +79,7 @@ public class ConfigActivity extends Activity {
         android.util.Log.d(TAG, "Finding views...");
         serverUrlInput = (EditText) findViewById(R.id.configServerUrl);
         android.util.Log.d(TAG, "serverUrlInput: " + (serverUrlInput != null ? "found" : "NULL"));
+        channelNameInput = (EditText) findViewById(R.id.configChannelName);
         connectionTypeGroup = (RadioGroup) findViewById(R.id.configConnectionType);
         connectionTypeRemote = (RadioButton) findViewById(R.id.configConnectionTypeRemote);
         connectionTypeInternal = (RadioButton) findViewById(R.id.configConnectionTypeInternal);
