@@ -320,6 +320,7 @@ public class ConfigActivity extends Activity {
         // Get values from UI
         String connectionType = connectionTypeInternal.isChecked() ? "internal" : "remote";
         String serverUrl = serverUrlInput.getText().toString().trim();
+        String channelName = channelNameInput != null ? channelNameInput.getText().toString().trim() : "test";
         boolean homeScreenMode = homeScreenModeCheckbox.isChecked();
         boolean autoUpdate = autoUpdateCheckbox.isChecked();
         boolean debugMode = debugModeCheckbox.isChecked();
@@ -333,6 +334,7 @@ public class ConfigActivity extends Activity {
         // Save configuration
         configManager.setConnectionType(connectionType);
         configManager.setServerUrl(serverUrl);
+        configManager.setChannelName(channelName);
         configManager.setHomeScreenMode(homeScreenMode);
         configManager.setAutoUpdate(autoUpdate);
         configManager.setDebugMode(debugMode);
