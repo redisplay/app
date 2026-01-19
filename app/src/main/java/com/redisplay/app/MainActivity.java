@@ -473,10 +473,11 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
         } else {
             // Use remote connection (SSE)
             if (serverUrl != null && !serverUrl.isEmpty()) {
+                String channel = currentChannel != null ? currentChannel : configManager.getChannelName();
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Using SSE connection: " + serverUrl);
+                    Log.d(TAG, "Using SSE connection: " + serverUrl + " (channel: " + channel + ")");
                 }
-                connectionProvider = new SseConnectionProvider(serverUrl, this);
+                connectionProvider = new SseConnectionProvider(serverUrl, channel, this);
             } else {
                 Log.w(TAG, "No server URL configured");
                 showError("No server URL configured. Please configure in settings (long-press middle center).");
@@ -966,6 +967,17 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
 
     @Override
     public void onMessageReceived(final String message) {
+        if (message == null || message.trim().isEmpty()) {
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "Received empty or null message");
+            }
+            return;
+        }
+        
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Received message: " + message.substring(0, Math.min(200, message.length())));
+        }
+        
         // Check if views are loaded before processing events
         boolean hasViews = false;
         String connectionType = configManager.getConnectionType();
@@ -1031,6 +1043,9 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                     // Hide QR code when processing view events
                     if (qrCodeImage != null) {
                         qrCodeImage.setVisibility(View.GONE);
+                    }
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Processing event in UI thread");
                     }
                     contentManager.handleEvent(message);
                 }

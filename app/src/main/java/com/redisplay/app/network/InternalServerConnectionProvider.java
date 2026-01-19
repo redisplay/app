@@ -10,6 +10,14 @@ import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+/**
+ * Connection provider for the internal HTTP server.
+ * 
+ * Note: This uses polling instead of SSE because NanoHTTPD (the embedded HTTP server)
+ * doesn't support long-lived connections well. For remote servers, SSE is used via
+ * SseConnectionProvider. Polling is acceptable for local connections as it's fast
+ * and doesn't add network overhead.
+ */
 public class InternalServerConnectionProvider implements ConnectionProvider {
     private static final String TAG = "InternalServerConnectionProvider";
     private static final int POLL_INTERVAL = 1000; // Poll every second

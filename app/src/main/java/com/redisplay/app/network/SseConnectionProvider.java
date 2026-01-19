@@ -11,14 +11,16 @@ public class SseConnectionProvider implements ConnectionProvider {
     private static final int RECONNECT_DELAY = 5000;
     
     private final String serverUrl;
+    private final String channel;
     private final ConnectionListener listener;
     
     private volatile boolean isRunning = false;
     private Thread sseThread;
     private HttpURLConnection currentConnection;
 
-    public SseConnectionProvider(String serverUrl, ConnectionListener listener) {
+    public SseConnectionProvider(String serverUrl, String channel, ConnectionListener listener) {
         this.serverUrl = serverUrl;
+        this.channel = channel != null ? channel : "test"; // Default to "test" if not provided
         this.listener = listener;
     }
 
@@ -43,8 +45,8 @@ public class SseConnectionProvider implements ConnectionProvider {
             public void run() {
                 while (isRunning) {
                     try {
-                        String sseUrl = serverUrl + "/sse/test"; // Keeping original endpoint structure
-                        Log.d(TAG, "Connecting to SSE: " + sseUrl);
+                        String sseUrl = serverUrl + "/sse/" + channel;
+                        Log.d(TAG, "Connecting to SSE: " + sseUrl + " (channel: " + channel + ")");
                         
                         URL url = new URL(sseUrl);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -230,6 +232,13 @@ public class SseConnectionProvider implements ConnectionProvider {
     @Override
     public boolean isRunning() {
         return isRunning;
+    }
+    
+    /**
+     * Get the current channel being used for this connection.
+     */
+    public String getChannel() {
+        return channel;
     }
 }
 

@@ -47,8 +47,11 @@ public class ContentManager {
         long eventStart = System.currentTimeMillis();
         try {
             if (jsonData == null || jsonData.trim().isEmpty()) {
+                android.util.Log.w("ContentManager", "Received empty or null event data");
                 return;
             }
+            
+            android.util.Log.d("ContentManager", "Received event: " + jsonData.substring(0, Math.min(200, jsonData.length())));
             
             JSONObject data = new JSONObject(jsonData);
             
@@ -60,33 +63,45 @@ public class ContentManager {
             
             // Check for new SSE format: initial_view or view_change
             String eventType = data.optString("type", "");
+            android.util.Log.d("ContentManager", "Event type: " + eventType);
             if ("initial_view".equals(eventType) || "view_change".equals(eventType)) {
+                android.util.Log.d("ContentManager", "Handling view event");
                 handleViewEvent(data);
+                return;
             }
             // Check if this is a playlist update event (has both playback and playlist)
             else if (data.has("playback") && data.has("playlist")) {
+                android.util.Log.d("ContentManager", "Handling playlist event");
                 handlePlaylistEvent(data);
+                return;
             } 
             // Check if this is a direct content event (has type field)
             else if (data.has("type")) {
+                android.util.Log.d("ContentManager", "Handling direct content event");
                 handleDirectContentEvent(data);
+                return;
             }
             // Check if it's just a playback update (no playlist change)
             else if (data.has("playback")) {
+                android.util.Log.d("ContentManager", "Handling playback update");
                 handlePlaybackUpdate(data);
+                return;
             }
             // Check if it has activeContent array (alternative format)
             else if (data.has("activeContent")) {
+                android.util.Log.d("ContentManager", "Handling activeContent event");
                 handleActiveContentEvent(data);
+                return;
             }
             // Unknown format - log but don't show error to user
             else {
-                // Silently ignore unknown formats to avoid spamming errors
-                // Could add logging here if needed
+                android.util.Log.w("ContentManager", "Unknown event format - ignoring. Event keys: " + java.util.Arrays.toString(org.json.JSONObject.getNames(data)));
             }
         } catch (org.json.JSONException e) {
+            android.util.Log.e("ContentManager", "JSON parse error: " + e.getMessage() + " Data: " + jsonData);
             activity.showError("JSON parse error: " + e.getMessage());
         } catch (Exception e) {
+            android.util.Log.e("ContentManager", "Event error: " + e.getMessage(), e);
             activity.showError("Event error: " + e.getMessage());
         }
     }
@@ -163,11 +178,37 @@ public class ContentManager {
     
     private void handleViewEvent(JSONObject data) {
         try {
+            android.util.Log.d("ContentManager", "handleViewEvent called");
+            
             // Extract view object
+            if (!data.has("view")) {
+                android.util.Log.e("ContentManager", "View event missing 'view' field: " + data.toString());
+                activity.showError("View event missing 'view' field");
+                return;
+            }
+            
             JSONObject view = data.getJSONObject("view");
+            android.util.Log.d("ContentManager", "View object extracted: " + view.toString().substring(0, Math.min(200, view.toString().length())));
+            
+            // Check if metadata exists
+            if (!view.has("metadata")) {
+                android.util.Log.e("ContentManager", "View missing 'metadata' field: " + view.toString());
+                activity.showError("View missing 'metadata' field");
+                return;
+            }
+            
             JSONObject metadata = view.getJSONObject("metadata");
+            
+            if (!metadata.has("type")) {
+                android.util.Log.e("ContentManager", "Metadata missing 'type' field: " + metadata.toString());
+                activity.showError("Metadata missing 'type' field");
+                return;
+            }
+            
             String viewType = metadata.getString("type");
             String viewId = view.optString("id", null);
+            
+            android.util.Log.d("ContentManager", "View type: " + viewType + ", View ID: " + viewId);
             
             // Create a content item structure that modules can understand
             JSONObject contentItem = new JSONObject();
@@ -177,8 +218,13 @@ public class ContentManager {
             // Update debug bar
             activity.updateDebugBar(viewId, viewType);
             
+            android.util.Log.d("ContentManager", "Calling displayContent");
             displayContent(contentItem);
+        } catch (org.json.JSONException e) {
+            android.util.Log.e("ContentManager", "JSON error in handleViewEvent: " + e.getMessage(), e);
+            activity.showError("View event JSON error: " + e.getMessage());
         } catch (Exception e) {
+            android.util.Log.e("ContentManager", "Error in handleViewEvent: " + e.getMessage(), e);
             activity.showError("View event error: " + e.getMessage());
         }
     }
