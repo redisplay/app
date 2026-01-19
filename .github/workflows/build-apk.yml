@@ -77,36 +77,51 @@ jobs:
       
       - name: Get tag name and prepare APK filename
         id: release_info
-        if: steps.build_type.outputs.build_type == 'release'
         run: |
+          BUILD_TYPE="${{ steps.build_type.outputs.build_type }}"
+          
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            # Tag push: use tag name, build release
             TAG_NAME="${{ github.ref_name }}"
             APK_FILENAME="redisplay-release-${{ github.ref_name }}.apk"
+            RELEASE_NAME="Release ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})"
+            IS_PRERELEASE="false"
             echo "Release type: Tag release"
+          elif [ "$BUILD_TYPE" == "debug" ]; then
+            # Master push: debug build
+            TAG_NAME="debug-v${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}-${{ github.run_number }}"
+            APK_FILENAME="redisplay-debug-${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}.apk"
+            RELEASE_NAME="Debug Build ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})"
+            IS_PRERELEASE="true"
+            echo "Release type: Debug build from master"
           else
+            # Manual trigger: release build
             TAG_NAME="v${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}-${{ github.run_number }}"
             APK_FILENAME="redisplay-release-${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}.apk"
+            RELEASE_NAME="Release ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})"
+            IS_PRERELEASE="false"
             echo "Release type: Manual release"
           fi
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "apk_filename=$APK_FILENAME" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
       
       - name: Rename APK for release
-        if: steps.build_type.outputs.build_type == 'release'
         run: |
           mkdir -p release-apk
-          cp app/build/outputs/apk/release/*.apk "release-apk/${{ steps.release_info.outputs.apk_filename }}"
+          cp app/build/outputs/apk/${{ steps.build_type.outputs.build_type }}/*.apk "release-apk/${{ steps.release_info.outputs.apk_filename }}"
           echo "APK renamed to: ${{ steps.release_info.outputs.apk_filename }}"
       
       - name: Create GitHub Release
-        if: steps.build_type.outputs.build_type == 'release'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.release_info.outputs.tag_name }}
-          name: Release ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})
+          name: ${{ steps.release_info.outputs.release_name }}
           body: |
             ## Version ${{ steps.version.outputs.versionName }}
             
+            **Build Type:** ${{ steps.build_type.outputs.build_type }}
             **Version Code:** ${{ steps.version.outputs.versionCode }}
             **Build Number:** ${{ github.run_number }}
             **Commit:** ${{ github.sha }}
@@ -115,7 +130,7 @@ jobs:
             Download the APK from the assets below.
           files: release-apk/${{ steps.release_info.outputs.apk_filename }}
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.release_info.outputs.is_prerelease == 'true' }}
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
