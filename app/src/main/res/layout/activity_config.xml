@@ -85,7 +85,36 @@
             android:inputType="textUri"
             android:background="#333333"
             android:padding="12dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="8dp" />
+        
+        <!-- Channel Name Input (shown when Remote is selected) -->
+        <LinearLayout
+            android:id="@+id/configChannelNameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Channel Name"
+                android:textColor="#AAAAAA"
+                android:layout_marginBottom="8dp" />
+            
+            <EditText
+                android:id="@+id/configChannelName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="test"
+                android:text="test"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#999999"
+                android:inputType="text"
+                android:background="#333333"
+                android:padding="12dp" />
+        </LinearLayout>
         
         <!-- Internal Server Address Display (shown when Internal is selected) -->
         <LinearLayout

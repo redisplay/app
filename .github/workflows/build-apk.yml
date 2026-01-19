@@ -1,0 +1,82 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x app/gradlew
+        working-directory: app
+      
+      - name: Build APK
+        run: ./gradlew assembleRelease
+        working-directory: app
+      
+      - name: Get version info
+        id: version
+        run: |
+          VERSION_CODE=$(grep -oP 'versionCode \K\d+' app/app/build.gradle | head -1)
+          VERSION_NAME=$(grep -oP 'versionName "\K[^"]+' app/app/build.gradle | head -1)
+          echo "versionCode=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "versionName=$VERSION_NAME" >> $GITHUB_OUTPUT
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ steps.version.outputs.versionCode }}
+          path: app/app/build/outputs/apk/release/*.apk
+          retention-days: 90
+      
+      - name: Upload APK to website public folder
+        run: |
+          mkdir -p redisplay.dev/public/apk
+          cp app/app/build/outputs/apk/release/*.apk redisplay.dev/public/apk/app-release.apk
+          echo "APK copied to public folder"
+      
+      - name: Update version JSON
+        run: |
+          cat > redisplay.dev/public/latest-version.json << EOF
+          {
+            "versionCode": ${{ steps.version.outputs.versionCode }},
+            "versionName": "${{ steps.version.outputs.versionName }}",
+            "downloadUrl": "https://redisplay.dev/download"
+          }
+          EOF
+          cat redisplay.dev/public/latest-version.json
+      
+      - name: Create PR or output instructions
+        run: |
+          echo "APK built successfully!"
+          echo "Version: ${{ steps.version.outputs.versionName }} (Code: ${{ steps.version.outputs.versionCode }})"
+          echo "APK location: redisplay.dev/public/apk/app-release.apk"
+          echo "Version JSON updated: redisplay.dev/public/latest-version.json"
+          echo "Please commit these files to make them available on the website."
+      
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: app/app/build/outputs/apk/release/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

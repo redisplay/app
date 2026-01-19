@@ -3,6 +3,7 @@ package com.redisplay.app.modules;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -37,6 +38,8 @@ public class CalendarModule implements ContentModule {
     private static final String TAG = "CalendarModule";
     private AsyncTask<Void, Void, String> fetchTask;
     private View calendarView;
+    private Handler scrollHandler;
+    private Runnable scrollUpdateRunnable;
 
     @Override
     public String getType() {
@@ -48,6 +51,13 @@ public class CalendarModule implements ContentModule {
         if (fetchTask != null) {
             fetchTask.cancel(true);
             fetchTask = null;
+        }
+        
+        // Cancel periodic scroll updates
+        if (scrollHandler != null && scrollUpdateRunnable != null) {
+            scrollHandler.removeCallbacks(scrollUpdateRunnable);
+            scrollHandler = null;
+            scrollUpdateRunnable = null;
         }
         
         if (calendarView != null && container instanceof ViewGroup) {
@@ -218,7 +228,7 @@ public class CalendarModule implements ContentModule {
         long nowTime = now.getTime();
         long startOfDay = getStartOfDay(now);
         long endOfDay = getEndOfDay(now);
-        long upcomingWindow = nowTime + (4 * 60 * 60 * 1000); // Next 4 hours
+        long upcomingWindow = endOfDay; // Show all remaining events today (extended from 4 hours)
 
         // LEFT SIDE: Upcoming events (next 3-4 hours) - 40% width
         ScrollView leftScroll = new ScrollView(activity);
@@ -252,14 +262,7 @@ public class CalendarModule implements ContentModule {
         rightScroll.addView(rightContainer);
         splitView.addView(rightScroll);
 
-        // RIGHT SIDE TITLE
-        TextView timelineTitle = new TextView(activity);
-        timelineTitle.setText("Giornata completa");
-        timelineTitle.setTextSize(24);
-        timelineTitle.setTypeface(null, Typeface.BOLD);
-        timelineTitle.setTextColor(headerColor);
-        timelineTitle.setPadding(0, 0, 0, dpToPx(activity, 12));
-        rightContainer.addView(timelineTitle);
+        // No title for timeline - removed "Giornata completa"
 
         // Parse and categorize events
         List<JSONObject> upcomingEvents = new ArrayList<>();
@@ -279,8 +282,8 @@ public class CalendarModule implements ContentModule {
             if (startTime >= startOfDay && startTime < endOfDay) {
                 todayEvents.add(event);
 
-                // Also add to upcoming if within next 4 hours
-                if (startTime >= nowTime && startTime <= upcomingWindow) {
+                // Add to upcoming if it's today and hasn't started yet, or started recently (within last hour)
+                if (startTime >= (nowTime - 60 * 60 * 1000) && startTime <= upcomingWindow) {
                     upcomingEvents.add(event);
                 }
             }
@@ -301,7 +304,7 @@ public class CalendarModule implements ContentModule {
         }
 
         // Render timeline
-        renderDayTimeline(activity, rightContainer, todayEvents, now, theme);
+        renderDayTimeline(activity, rightContainer, todayEvents, now, theme, rightScroll);
     }
 
     private void addUpcomingEventCard(MainActivity activity, LinearLayout container, JSONObject event, JSONObject theme) {
@@ -375,7 +378,7 @@ public class CalendarModule implements ContentModule {
         }
     }
 
-    private void renderDayTimeline(MainActivity activity, LinearLayout container, List<JSONObject> todayEvents, Date now, JSONObject theme) {
+    private void renderDayTimeline(MainActivity activity, LinearLayout container, List<JSONObject> todayEvents, Date now, JSONObject theme, ScrollView scrollView) {
         try {
             int textColor = getColor(theme, "textColor", "#FFFFFF");
             int timeColor = getColor(theme, "timeColor", "#BBBBBB");
@@ -385,9 +388,12 @@ public class CalendarModule implements ContentModule {
             cal.setTime(now);
             int currentHour = cal.get(Calendar.HOUR_OF_DAY);
             int currentMinute = cal.get(Calendar.MINUTE);
+            
+            // Store reference to scroll view for auto-scrolling
+            final ScrollView timelineScroll = scrollView;
 
-            // Build hour slots (7am to 11pm)
-            for (int hour = 7; hour <= 23; hour++) {
+            // Build hour slots (full day: 0-23)
+            for (int hour = 0; hour <= 23; hour++) {
                 LinearLayout hourSlot = new LinearLayout(activity);
                 hourSlot.setOrientation(LinearLayout.HORIZONTAL);
                 hourSlot.setPadding(0, dpToPx(activity, 2), 0, dpToPx(activity, 2));
@@ -454,6 +460,57 @@ public class CalendarModule implements ContentModule {
                 divider.setBackgroundColor(dividerColor);
                 container.addView(divider);
             }
+            
+            // Auto-scroll to current time after layout
+            container.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (timelineScroll != null && container.getChildCount() > 0) {
+                        // Calculate scroll position: current hour * hour height + minute offset
+                        int hourHeight = dpToPx(activity, 48) + dpToPx(activity, 3); // hour slot + divider
+                        int scrollY = currentHour * hourHeight;
+                        
+                        // Add minute offset within current hour
+                        int minuteOffset = (int)((currentMinute / 60.0) * dpToPx(activity, 48));
+                        scrollY += minuteOffset;
+                        
+                        // Scroll to show current time, with some padding from top
+                        int targetScroll = Math.max(0, scrollY - dpToPx(activity, 200)); // 200dp padding from top
+                        timelineScroll.scrollTo(0, targetScroll);
+                    }
+                }
+            });
+            
+            // Schedule periodic scroll updates to keep current time visible
+            scrollHandler = new Handler();
+            scrollUpdateRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (timelineScroll != null && container.getChildCount() > 0) {
+                        Calendar currentCal = Calendar.getInstance();
+                        int hour = currentCal.get(Calendar.HOUR_OF_DAY);
+                        int minute = currentCal.get(Calendar.MINUTE);
+                        
+                        int hourHeight = dpToPx(activity, 48) + dpToPx(activity, 3);
+                        int scrollY = hour * hourHeight;
+                        int minuteOffset = (int)((minute / 60.0) * dpToPx(activity, 48));
+                        scrollY += minuteOffset;
+                        
+                        int currentScroll = timelineScroll.getScrollY();
+                        int targetScroll = Math.max(0, scrollY - dpToPx(activity, 200));
+                        
+                        // Smoothly scroll if we're far from current time
+                        if (Math.abs(currentScroll - targetScroll) > dpToPx(activity, 100)) {
+                            timelineScroll.smoothScrollTo(0, targetScroll);
+                        }
+                    }
+                    // Schedule next update in 1 minute
+                    scrollHandler.postDelayed(this, 60 * 1000);
+                }
+            };
+            // Start periodic updates after initial scroll
+            scrollHandler.postDelayed(scrollUpdateRunnable, 1000);
+            
         } catch (Exception e) {
             Log.e(TAG, "Error rendering timeline", e);
         }

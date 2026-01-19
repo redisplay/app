@@ -34,13 +34,13 @@ public class ConfigActivity extends Activity {
     private static final String TAG = "ConfigActivity";
 
     private EditText serverUrlInput;
+    private EditText channelNameInput;
     private RadioGroup connectionTypeGroup;
     private RadioButton connectionTypeRemote;
     private RadioButton connectionTypeInternal;
     private CheckBox homeScreenModeCheckbox;
     private CheckBox autoUpdateCheckbox;
     private CheckBox debugModeCheckbox;
-    // private CheckBox useBluetoothCheckbox; // Commented out
     private Button saveButton;
     private Button cancelButton;
     private Button clearButton;
@@ -85,7 +85,6 @@ public class ConfigActivity extends Activity {
         homeScreenModeCheckbox = (CheckBox) findViewById(R.id.configHomeScreenMode);
         autoUpdateCheckbox = (CheckBox) findViewById(R.id.configAutoUpdate);
         debugModeCheckbox = (CheckBox) findViewById(R.id.configDebugMode);
-        // useBluetoothCheckbox = (CheckBox) findViewById(R.id.configUseBluetooth); // Commented out
         saveButton = (Button) findViewById(R.id.configSaveButton);
         cancelButton = (Button) findViewById(R.id.configCancelButton);
         clearButton = (Button) findViewById(R.id.configClearButton);
@@ -165,17 +164,30 @@ public class ConfigActivity extends Activity {
             serverUrlInput.setText(serverUrl);
         }
         
+        // Load channel name
+        String channelName = configManager.getChannelName();
+        if (channelNameInput != null) {
+            channelNameInput.setText(channelName);
+        }
+        
         // Load connection type
         String connectionType = configManager.getConnectionType();
+        View channelNameLayout = findViewById(R.id.configChannelNameLayout);
         if ("internal".equals(connectionType)) {
             connectionTypeInternal.setChecked(true);
             serverUrlInput.setVisibility(View.GONE);
+            if (channelNameLayout != null) {
+                channelNameLayout.setVisibility(View.GONE);
+            }
             if (configInternalServerLayout != null) {
                 configInternalServerLayout.setVisibility(View.VISIBLE);
             }
         } else {
             connectionTypeRemote.setChecked(true);
             serverUrlInput.setVisibility(View.VISIBLE);
+            if (channelNameLayout != null) {
+                channelNameLayout.setVisibility(View.VISIBLE);
+            }
             if (configInternalServerLayout != null) {
                 configInternalServerLayout.setVisibility(View.GONE);
             }
@@ -190,9 +202,13 @@ public class ConfigActivity extends Activity {
         connectionTypeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
+                View channelNameLayout = findViewById(R.id.configChannelNameLayout);
                 if (checkedId == R.id.configConnectionTypeInternal) {
-                    // Hide server URL input, show internal server info
+                    // Hide server URL input and channel name, show internal server info
                     serverUrlInput.setVisibility(View.GONE);
+                    if (channelNameLayout != null) {
+                        channelNameLayout.setVisibility(View.GONE);
+                    }
                     if (configInternalServerLayout != null) {
                         configInternalServerLayout.setVisibility(View.VISIBLE);
                     }
@@ -201,8 +217,11 @@ public class ConfigActivity extends Activity {
                     startInternalServerIfNeeded();
                     updateInternalServerAddress();
                 } else {
-                    // Show server URL input, hide internal server info
+                    // Show server URL input and channel name, hide internal server info
                     serverUrlInput.setVisibility(View.VISIBLE);
+                    if (channelNameLayout != null) {
+                        channelNameLayout.setVisibility(View.VISIBLE);
+                    }
                     if (configInternalServerLayout != null) {
                         configInternalServerLayout.setVisibility(View.GONE);
                     }
@@ -303,7 +322,6 @@ public class ConfigActivity extends Activity {
         boolean homeScreenMode = homeScreenModeCheckbox.isChecked();
         boolean autoUpdate = autoUpdateCheckbox.isChecked();
         boolean debugMode = debugModeCheckbox.isChecked();
-        // boolean useBluetooth = useBluetoothCheckbox.isChecked(); // Commented out
         
         // Validate server URL (only if using remote connection)
         if ("remote".equals(connectionType) && serverUrl.isEmpty()) {
@@ -317,7 +335,6 @@ public class ConfigActivity extends Activity {
         configManager.setHomeScreenMode(homeScreenMode);
         configManager.setAutoUpdate(autoUpdate);
         configManager.setDebugMode(debugMode);
-        // configManager.setUseBluetooth(useBluetooth); // Commented out
         
         // Update home screen mode in manifest if needed
         updateHomeScreenMode(homeScreenMode);

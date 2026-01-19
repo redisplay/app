@@ -31,10 +31,8 @@ public class SetupActivity extends Activity {
         
         if (currentUrl != null && !currentUrl.isEmpty()) {
             urlInput.setText(currentUrl);
-        } else {
-            // Default placeholder
-            urlInput.setText("http://192.168.63.167:3000");
         }
+        // No default URL - user must enter their server URL
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -16,8 +16,8 @@ import java.net.URL;
 
 public class UpdateChecker {
     private static final String TAG = "UpdateChecker";
-    private static final String UPDATE_CHECK_URL = "https://sila.love/api/kiosk/update";
-    public static final int CHECK_INTERVAL = 3600000; // 1 hour
+    private static final String UPDATE_CHECK_URL = "https://redisplay.dev/latest-version";
+    public static final long CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
     
     public interface UpdateListener {
         void onUpdateAvailable(String versionName, String downloadUrl);

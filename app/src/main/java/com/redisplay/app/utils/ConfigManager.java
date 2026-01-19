@@ -9,23 +9,16 @@ public class ConfigManager {
     private static final String KEY_HOME_SCREEN_MODE = "home_screen_mode";
     private static final String KEY_AUTO_UPDATE = "auto_update";
     private static final String KEY_DEBUG_MODE = "debug_mode";
-    private static final String KEY_USE_BLUETOOTH = "use_bluetooth";
     private static final String KEY_CONNECTION_TYPE = "connection_type"; // "remote", "internal"
+    private static final String KEY_CHANNEL_NAME = "channel_name";
     private static final String DEFAULT_URL = "";
     private static final String DEFAULT_CONNECTION_TYPE = "remote";
+    private static final String DEFAULT_CHANNEL_NAME = "test";
 
     private SharedPreferences prefs;
 
     public ConfigManager(Context context) {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-    }
-
-    public boolean getUseBluetooth() {
-        return prefs.getBoolean(KEY_USE_BLUETOOTH, false);
-    }
-
-    public void setUseBluetooth(boolean enabled) {
-        prefs.edit().putBoolean(KEY_USE_BLUETOOTH, enabled).apply();
     }
 
     public String getServerUrl() {
@@ -83,6 +76,17 @@ public class ConfigManager {
             type = DEFAULT_CONNECTION_TYPE;
         }
         prefs.edit().putString(KEY_CONNECTION_TYPE, type).apply();
+    }
+    
+    public String getChannelName() {
+        return prefs.getString(KEY_CHANNEL_NAME, DEFAULT_CHANNEL_NAME);
+    }
+    
+    public void setChannelName(String channelName) {
+        if (channelName == null || channelName.trim().isEmpty()) {
+            channelName = DEFAULT_CHANNEL_NAME;
+        }
+        prefs.edit().putString(KEY_CHANNEL_NAME, channelName.trim()).apply();
     }
     
     public void clearConfig() {

@@ -2,6 +2,7 @@ package com.redisplay.app;
 
 import android.app.Activity;
 import android.os.Build;
+import com.redisplay.app.BuildConfig;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -39,8 +40,6 @@ import com.redisplay.app.utils.RippleView;
 import com.redisplay.app.utils.ConfigManager;
 import com.redisplay.app.network.ConnectionProvider;
 import com.redisplay.app.network.SseConnectionProvider;
-import com.redisplay.app.network.BleConnectionProvider;
-import com.redisplay.app.network.BluetoothClassicConnectionProvider;
 import com.redisplay.app.network.InternalServerConnectionProvider;
 import com.redisplay.app.server.InternalHttpServer;
 import com.redisplay.app.server.InternalViewManager;
@@ -70,14 +69,13 @@ import javax.net.ssl.X509TrustManager;
 public class MainActivity extends Activity implements ConnectionProvider.ConnectionListener {
     private static final String TAG = "MainActivity";
     
-    // Set to true to enable automatic update checking
-    private static final boolean ENABLE_AUTO_UPDATE = false;
+    // Update checking is always enabled - runs on startup and every 24 hours
     
     // Set to true to show debug bar with view information
     private static final boolean SHOW_DEBUG_BAR = false;
     
-    // Set to true to show detailed error messages, false for user-friendly retry UI
-    private static final boolean DEBUG_MODE = true;
+    // Use BuildConfig.DEBUG to show detailed error messages in debug builds only
+    private static final boolean DEBUG_MODE = BuildConfig.DEBUG;
     
     // Fade animation duration in milliseconds
     private static final int FADE_OUT_DURATION_MS = 500;
@@ -155,16 +153,25 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
         // Get configured URL (or empty if not set)
         serverUrl = configManager.getServerUrl();
         
+        // Get configured channel name (or default "test")
+        currentChannel = configManager.getChannelName();
+        
         // Check connection type
         String connectionType = configManager.getConnectionType();
         
         if ("internal".equals(connectionType)) {
-            Log.d(TAG, "Using internal server mode");
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Using internal server mode");
+            }
             // Will show server address after connection is established
         } else if (serverUrl != null && !serverUrl.isEmpty()) {
-            Log.d(TAG, "Using server URL: " + serverUrl);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Using server URL: " + serverUrl);
+            }
         } else {
-            Log.d(TAG, "No server URL configured - use long-press middle center to access config");
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "No server URL configured - use long-press middle center to access config");
+            }
             // Show a message to user
             Toast.makeText(this, "Long-press middle center to configure server", Toast.LENGTH_LONG).show();
         }
@@ -301,11 +308,9 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
         // Fetch configuration
         fetchConfiguration();
         
-        // Check for updates periodically (if enabled)
-        if (ENABLE_AUTO_UPDATE) {
-            checkForUpdates();
-            handler.postDelayed(updateCheckRunnable, UpdateChecker.CHECK_INTERVAL);
-        }
+        // Check for updates on startup and schedule periodic checks
+        checkForUpdates();
+        handler.postDelayed(updateCheckRunnable, UpdateChecker.CHECK_INTERVAL);
     }
     
     private void startInternalServerIfNeeded() {
@@ -466,35 +471,15 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                 internalHttpServer // Pass the singleton server instance
             );
         } else {
-            // Use remote connection (SSE or Bluetooth)
-            // Check if Bluetooth mode is enabled (commented out for now)
-            // boolean useBluetooth = configManager.getUseBluetooth();
-            boolean useBluetooth = false; // Commented out
-            
-            if (useBluetooth) {
-                // Use Bluetooth connection
-                int sdkVersion = Build.VERSION.SDK_INT;
-                
-                if (sdkVersion >= 18) {
-                    // Android 4.3+ - Use BLE (better battery, more modern)
-                    Log.d(TAG, "Using BLE connection (Android " + sdkVersion + ")");
-                    String channel = currentChannel != null ? currentChannel : "test";
-                    connectionProvider = new BleConnectionProvider(this, channel, this);
-                } else {
-                    // Android 4.2.2 and below - Use Bluetooth Classic (SPP)
-                    // BLE support is limited/unreliable on API 17
-                    Log.d(TAG, "Using Bluetooth Classic (SPP) connection (Android " + sdkVersion + ")");
-                    connectionProvider = new BluetoothClassicConnectionProvider(this, this);
-                }
-            } else {
-                // Use WiFi/SSE connection
-                if (serverUrl != null && !serverUrl.isEmpty()) {
+            // Use remote connection (SSE)
+            if (serverUrl != null && !serverUrl.isEmpty()) {
+                if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Using SSE connection: " + serverUrl);
-                    connectionProvider = new SseConnectionProvider(serverUrl, this);
-                } else {
-                    Log.w(TAG, "No server URL configured");
-                    showError("No server URL configured. Please configure in settings (long-press middle center).");
                 }
+                connectionProvider = new SseConnectionProvider(serverUrl, this);
+            } else {
+                Log.w(TAG, "No server URL configured");
+                showError("No server URL configured. Please configure in settings (long-press middle center).");
             }
         }
     }
@@ -818,7 +803,6 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
         if (configManager != null) {
             String newConnectionType = configManager.getConnectionType();
             String newServerUrl = configManager.getServerUrl();
-            boolean useBluetooth = configManager.getUseBluetooth();
             
             // Check if connection type changed (remote <-> internal)
             boolean connectionTypeChanged = false;
@@ -832,8 +816,7 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
             if (connectionTypeChanged ||
                 (serverUrl == null || !serverUrl.equals(newServerUrl)) || 
                 (connectionProvider == null) ||
-                (useBluetooth && !(connectionProvider instanceof BleConnectionProvider || connectionProvider instanceof BluetoothClassicConnectionProvider)) ||
-                (!useBluetooth && !"internal".equals(newConnectionType) && !(connectionProvider instanceof SseConnectionProvider))) {
+                (!"internal".equals(newConnectionType) && !(connectionProvider instanceof SseConnectionProvider))) {
                 serverUrl = newServerUrl;
                 Log.d(TAG, "Config changed, reinitializing connection (type: " + newConnectionType + ")");
                 initializeConnection();
@@ -1342,12 +1325,16 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
     }
     
     public void loadImage(final String imageUrl) {
-        Log.d(TAG, "loadImage called with URL: " + imageUrl);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "loadImage called with URL: " + imageUrl);
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.d(TAG, "Opening connection to: " + imageUrl);
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Opening connection to: " + imageUrl);
+                    }
                     URL url = new URL(imageUrl);
                     // All images now come through server proxy (HTTP), no SSL needed
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -1428,7 +1415,9 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                             // For local connections from the app itself, use localhost (more reliable)
                             int port = internalHttpServer.getPort();
                             baseUrl = "http://localhost:" + port;
-                            Log.d(TAG, "Using internal server (localhost) for config: " + baseUrl);
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "Using internal server (localhost) for config: " + baseUrl);
+                            }
                         } else {
                             Log.w(TAG, "Internal server not available yet, skipping config fetch");
                             return;
@@ -1442,7 +1431,9 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                     
                     // Fetch Channels
                     String channelsUrl = baseUrl + "/api/channels";
-                    Log.d(TAG, "Fetching channels from: " + channelsUrl);
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Fetching channels from: " + channelsUrl);
+                    }
                     
                     URL url = new URL(channelsUrl);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -1586,7 +1577,9 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                     
                     // 2. Fetch Channel Config for Quadrants
                     String configUrl = baseUrl + "/api/channel-config/" + currentChannel;
-                    Log.d(TAG, "Fetching config from: " + configUrl);
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Fetching config from: " + configUrl);
+                    }
                     
                     url = new URL(configUrl);
                     conn = (HttpURLConnection) url.openConnection();
@@ -1778,7 +1771,9 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                     
                     String urlString = baseUrl + "/api/channels/" + currentChannel + "/tap";
                     
-                    Log.d(TAG, "Sending tap: " + urlString + " payload: " + quadrant);
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Sending tap: " + urlString + " payload: " + quadrant);
+                    }
                     URL url = new URL(urlString);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
@@ -1818,7 +1813,9 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                     
                     String urlString = baseUrl + "/api/channels/" + currentChannel + "/" + action;
                     
-                    Log.d(TAG, "Navigating: " + urlString);
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Navigating: " + urlString);
+                    }
                     URL url = new URL(urlString);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
@@ -1972,22 +1969,36 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
     }
     
     private void checkForUpdates() {
-        // Implementation for update check would go here
+        UpdateChecker.checkForUpdate(this, new UpdateChecker.UpdateListener() {
+            @Override
+            public void onUpdateAvailable(String versionName, String downloadUrl) {
+                Log.d(TAG, "Update available: " + versionName);
+                // Optionally show a notification or dialog to the user
+                // For now, just log it - user can manually update if needed
+            }
+            
+            @Override
+            public void onUpdateCheckFailed(String error) {
+                Log.d(TAG, "Update check failed: " + error);
+                // Silently fail - don't bother user with update check failures
+            }
+            
+            @Override
+            public void onUpdateDownloaded(File apkFile) {
+                Log.d(TAG, "Update downloaded: " + apkFile.getAbsolutePath());
+                // APK installation is handled by UpdateChecker
+            }
+        });
     }
     
     private Runnable updateCheckRunnable = new Runnable() {
         @Override
         public void run() {
             checkForUpdates();
-            // Schedule next check
+            // Schedule next check (24 hours)
             handler.postDelayed(this, UpdateChecker.CHECK_INTERVAL);
         }
     };
-    
-    // Dummy class for update checker constants
-    private static class UpdateChecker {
-        static final long CHECK_INTERVAL = 1000 * 60 * 60; // 1 hour
-    }
     
     private void generateAndShowQRCode(final String text) {
         new Thread(new Runnable() {
