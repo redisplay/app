@@ -84,21 +84,21 @@ jobs:
             # Tag push: use tag name, build release
             TAG_NAME="${{ github.ref_name }}"
             APK_FILENAME="redisplay-release-${{ github.ref_name }}.apk"
-            RELEASE_NAME="Release ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})"
+            RELEASE_NAME="Release ${{ steps.version.outputs.versionName }} (Build ${{ github.run_number }})"
             IS_PRERELEASE="false"
             echo "Release type: Tag release"
           elif [ "$BUILD_TYPE" == "debug" ]; then
             # Master push: debug build
             TAG_NAME="debug-v${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}-${{ github.run_number }}"
             APK_FILENAME="redisplay-debug-${{ github.run_number }}.apk"
-            RELEASE_NAME="Debug Build ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})"
+            RELEASE_NAME="Debug Build ${{ steps.version.outputs.versionName }} (Build ${{ github.run_number }})"
             IS_PRERELEASE="true"
             echo "Release type: Debug build from master"
           else
             # Manual trigger: release build
             TAG_NAME="v${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}-${{ github.run_number }}"
             APK_FILENAME="redisplay-release-${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}.apk"
-            RELEASE_NAME="Release ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})"
+            RELEASE_NAME="Release ${{ steps.version.outputs.versionName }} (Build ${{ github.run_number }})"
             IS_PRERELEASE="false"
             echo "Release type: Manual release"
           fi
