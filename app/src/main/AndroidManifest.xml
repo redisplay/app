@@ -21,7 +21,8 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="sensorLandscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:exported="true">
             <!-- Removed LAUNCHER/HOME categories from here, moved to SplashActivity/SetupActivity logic if needed, 
                  but for now we'll keep MainActivity as entry and redirect -->
             <intent-filter>
