@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to create releases
     
     steps:
       - name: Checkout code
@@ -44,7 +46,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}
+          tag_name: v${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}-${{ github.run_number }}
           name: Release ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})
           body: |
             ## Version ${{ steps.version.outputs.versionName }}
