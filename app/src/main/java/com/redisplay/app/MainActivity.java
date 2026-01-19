@@ -974,9 +974,6 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
             return;
         }
         
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Received message: " + message.substring(0, Math.min(200, message.length())));
-        }
         
         // Check if views are loaded before processing events
         boolean hasViews = false;
@@ -1043,9 +1040,6 @@ public class MainActivity extends Activity implements ConnectionProvider.Connect
                     // Hide QR code when processing view events
                     if (qrCodeImage != null) {
                         qrCodeImage.setVisibility(View.GONE);
-                    }
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Processing event in UI thread");
                     }
                     contentManager.handleEvent(message);
                 }
