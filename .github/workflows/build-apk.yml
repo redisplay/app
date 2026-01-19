@@ -90,7 +90,7 @@ jobs:
           elif [ "$BUILD_TYPE" == "debug" ]; then
             # Master push: debug build
             TAG_NAME="debug-v${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}-${{ github.run_number }}"
-            APK_FILENAME="redisplay-debug-${{ steps.version.outputs.versionName }}-${{ steps.version.outputs.versionCode }}.apk"
+            APK_FILENAME="redisplay-debug-${{ github.run_number }}.apk"
             RELEASE_NAME="Debug Build ${{ steps.version.outputs.versionName }} (Build ${{ steps.version.outputs.versionCode }})"
             IS_PRERELEASE="true"
             echo "Release type: Debug build from master"
